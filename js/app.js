@@ -19,15 +19,13 @@ const datosBusqueda = {
     minimo: '',
     maximo: '',
     puertas: '',
-    transimion: '',
+    transmision: '',
     color: ''
 };
 
-console.log(max, min);
-
 // Eventos
 document.addEventListener('DOMContentLoaded', () => {
-    mostrarAutos(); // Muestra los automoviles a cargar
+    mostrarAutos(autos); // Muestra los automoviles a cargar
 
     // Llena las opciones de año
     llenarSelect();
@@ -36,57 +34,69 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event listener para los select de busqueda
 marca.addEventListener('change', e => {
     datosBusqueda.marca = e.target.value;
-    console.log(datosBusqueda);
-
+    
     filtrarAuto();
 });
 
 year.addEventListener('change', e => {
     datosBusqueda.year = e.target.value;
-    console.log(datosBusqueda);
     
     filtrarAuto();
 });
 
 minimo.addEventListener('change', e => {
     datosBusqueda.minimo = e.target.value;
-    console.log(datosBusqueda);
+    
+    filtrarAuto();
 });
 
 maximo.addEventListener('change', e => {
     datosBusqueda.maximo = e.target.value;
-    console.log(datosBusqueda);
+    
+    filtrarAuto();
 });
 
 puertas.addEventListener('change', e => {
     datosBusqueda.puertas = e.target.value;
-    console.log(datosBusqueda);
+    
+    filtrarAuto();
 });
 
 transmision.addEventListener('change', e => {
-    datosBusqueda.transimion = e.target.value;
-    console.log(datosBusqueda);
+    datosBusqueda.transmision = e.target.value;
+    
+    filtrarAuto();
 });
 
 color.addEventListener('change', e => {
     datosBusqueda.color = e.target.value;
-    console.log(datosBusqueda);
+    
+    filtrarAuto();
 });
 
 // Funciones
-function mostrarAutos() {
+function mostrarAutos(autos) {
+
+    limpiarHTML();
+
     autos.forEach(auto => {
         const { marca, modelo, year, puertas, transmision, precio, color} = auto;
         const autoHTML = document.createElement('P');
 
         autoHTML.textContent = `
-        ${marca} ${modelo} - ${year} - ${puertas} Puertas - Transmision: ${transmision}
+        ${marca} ${modelo} - ${year} - ${puertas} Puertas - Transmision: ${transmision} - $${precio} - ${color}
         `;
 
         // Insertar el html
         resultado.appendChild(autoHTML);
     });
 };
+
+function limpiarHTML() {
+    while(resultado.firstChild) {
+        resultado.removeChild(resultado.firstChild);
+    }
+}
 
 // Genera los años del select
 function llenarSelect() {
@@ -100,10 +110,24 @@ function llenarSelect() {
 
 // Filtra en base a la busqueda
 function filtrarAuto() {
-    const resultado = autos.filter(filtrarMarca).filter(filtrarYear);
+    const resultado = autos.filter(filtrarMarca).filter(filtrarYear).filter( filtrarMinimo ).filter( filtrarMaximo ).filter( filtrarPuertas).filter( filtrarTransmision ).filter( filtrarColor );
 
-    console.log(resultado);
+    
+    if(resultado.length) {
+        mostrarAutos(resultado);
+    } else {
+        noResultado();
+    }
 };
+
+function noResultado() {
+    limpiarHTML();
+
+    const noResultado = document.createElement('DIV');
+    noResultado.classList.add('alerta', 'error');
+    noResultado.textContent = 'No hay Resultados. Intente con otra busqueda';
+    resultado.appendChild(noResultado);
+}
 
 function filtrarMarca(auto) {
     const { marca } = datosBusqueda;
@@ -117,6 +141,46 @@ function filtrarYear(auto) {
     const { year } = datosBusqueda;
     if(year) {
         return auto.year === parseInt(year);
+    }
+    return auto;
+}
+
+function filtrarMinimo(auto) {
+    const { minimo } = datosBusqueda;
+    if(minimo) {
+        return auto.precio >= minimo;
+    }
+    return auto;
+}
+
+function filtrarMaximo(auto) {
+    const { maximo } = datosBusqueda;
+    if(maximo) {
+        return auto.precio <= maximo;
+    }
+    return auto;
+}
+
+function filtrarPuertas(auto) {
+    const { puertas } = datosBusqueda;
+    if(puertas) {
+        return auto.puertas === parseInt(puertas);
+    }
+    return auto;
+}
+
+function filtrarTransmision(auto) {
+    const { transmision } = datosBusqueda;
+    if(transmision) {
+        return auto.transmision === transmision;
+    }
+    return auto;
+}
+
+function filtrarColor(auto) {
+    const { color } = datosBusqueda;
+    if(color) {
+        return auto.color === color;
     }
     return auto;
 }
